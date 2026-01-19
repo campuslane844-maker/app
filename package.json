@@ -16,12 +16,14 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "expo": "~54.0.29",
+    "expo-auth-session": "~7.0.10",
     "expo-constants": "~18.0.12",
     "expo-linking": "~8.0.10",
     "expo-router": "~6.0.19",
     "expo-splash-screen": "~31.0.12",
     "expo-status-bar": "~3.0.9",
     "expo-system-ui": "~6.0.9",
+    "expo-web-browser": "~15.0.10",
     "lucide-react-native": "^0.545.0",
     "nativewind": "^4.2.1",
     "react": "19.1.0",
@@ -35,7 +37,8 @@
     "react-native-worklets": "0.5.1",
     "tailwind-merge": "^3.3.1",
     "tailwindcss": "^3.4.14",
-    "tailwindcss-animate": "^1.0.7"
+    "tailwindcss-animate": "^1.0.7",
+    "undefined": "expo-auth-session/providers/google"
   },
   "devDependencies": {
     "@babel/core": "^7.26.0",

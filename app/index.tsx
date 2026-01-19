@@ -1,77 +1,97 @@
-import { Button } from '@/components/ui/button';
-import { Icon } from '@/components/ui/icon';
-import { Text } from '@/components/ui/text';
-import { Link, Stack } from 'expo-router';
-import { MoonStarIcon, StarIcon, SunIcon } from 'lucide-react-native';
-import { useColorScheme } from 'nativewind';
-import * as React from 'react';
-import { Image, type ImageStyle, View } from 'react-native';
+import { View, Text, StyleSheet, Pressable, ActivityIndicator } from 'react-native';
+import * as WebBrowser from 'expo-web-browser';
+import * as Google from 'expo-auth-session/providers/google';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'expo-router';
 
-const LOGO = {
-  light: require('@/assets/images/react-native-reusables-light.png'),
-  dark: require('@/assets/images/react-native-reusables-dark.png'),
-};
+WebBrowser.maybeCompleteAuthSession();
 
-const SCREEN_OPTIONS = {
-  title: 'React Native Reusables',
-  headerTransparent: true,
-  headerRight: () => <ThemeToggle />,
-};
+const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
-const IMAGE_STYLE: ImageStyle = {
-  height: 76,
-  width: 76,
-};
+export default function LoginScreen() {
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
 
-export default function Screen() {
-  const { colorScheme } = useColorScheme();
+  const [request, response, promptAsync] = Google.useAuthRequest({
+    clientId: '365781114531-qmnedake99h2t6rt8i936o6dbdd3pr0s.apps.googleusercontent.com',
+    scopes: ['profile', 'email'],
+  });
+
+  useEffect(() => {
+    const loginWithBackend = async () => {
+      if (response?.type !== 'success') return;
+
+      try {
+        setLoading(true);
+
+        const accessToken = response.authentication?.accessToken;
+        console.log(accessToken);
+        if (!accessToken) throw new Error('No access token');
+
+        const res = await fetch(`${API_URL}/auth/google`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ accessToken }),
+        });
+
+        if (!res.ok) throw new Error('Backend auth failed');
+
+        const data = await res.json();
+        console.log(data);
+      } catch (err) {
+        console.error('Google login error:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loginWithBackend();
+  }, [response]);
 
   return (
-    <>
-      <Stack.Screen options={SCREEN_OPTIONS} />
-      <View className="flex-1 items-center justify-center gap-8 p-4">
-        <Image source={LOGO[colorScheme ?? 'light']} style={IMAGE_STYLE} resizeMode="contain" />
-        <View className="gap-2 p-4">
-          <Text className="ios:text-foreground font-mono text-sm text-muted-foreground">
-            1. Edit <Text variant="code">app/index.tsx</Text> to get started.
-          </Text>
-          <Text className="ios:text-foreground font-mono text-sm text-muted-foreground">
-            2. Save to see your changes instantly.
-          </Text>
-        </View>
-        <View className="flex-row gap-2">
-          <Link href="https://reactnativereusables.com" asChild>
-            <Button>
-              <Text>Browse the Docs</Text>
-            </Button>
-          </Link>
-          <Link href="https://github.com/founded-labs/react-native-reusables" asChild>
-            <Button variant="ghost">
-              <Text>Star the Repo</Text>
-              <Icon as={StarIcon} />
-            </Button>
-          </Link>
-        </View>
-      </View>
-    </>
+    <View style={styles.container}>
+      <Text style={styles.title}>Welcome</Text>
+
+      <Pressable
+        disabled={!request || loading}
+        style={styles.googleButton}
+        onPress={() => promptAsync()}>
+        {loading ? (
+          <ActivityIndicator color="#000" />
+        ) : (
+          <Text style={styles.googleText}>Continue with Google</Text>
+        )}
+      </Pressable>
+    </View>
   );
 }
 
-const THEME_ICONS = {
-  light: SunIcon,
-  dark: MoonStarIcon,
-};
-
-function ThemeToggle() {
-  const { colorScheme, toggleColorScheme } = useColorScheme();
-
-  return (
-    <Button
-      onPressIn={toggleColorScheme}
-      size="icon"
-      variant="ghost"
-      className="ios:size-9 rounded-full web:mx-4">
-      <Icon as={THEME_ICONS[colorScheme ?? 'light']} className="size-5" />
-    </Button>
-  );
-}
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    padding: 24,
+    backgroundColor: '#fff',
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: '600',
+    textAlign: 'center',
+    marginBottom: 32,
+  },
+  googleButton: {
+    height: 52,
+    borderRadius: 8,
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#ddd',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  googleText: {
+    fontSize: 16,
+    fontWeight: '500',
+  },
+});
