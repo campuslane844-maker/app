@@ -41,11 +41,21 @@ module.exports = {
           DEFAULT: 'hsl(var(--card))',
           foreground: 'hsl(var(--card-foreground))',
         },
+        
+        
       },
       borderRadius: {
         lg: 'var(--radius)',
         md: 'calc(var(--radius) - 2px)',
         sm: 'calc(var(--radius) - 4px)',
+      },
+      fontFamily: {
+        sans: ["DM Sans", "system-ui"],
+        heading1: ["Quicksand-Bold", "system-ui"],
+        heading2: ["Quicksand-SemiBold", "system-ui"],
+        heading3: ["Quicksand-Medium", "system-ui"],
+        heading4: ["Quicksand-Regular", "system-ui"],
+        heading5: ["Quicksand-Light", "system-ui"],
       },
       borderWidth: {
         hairline: hairlineWidth(),
