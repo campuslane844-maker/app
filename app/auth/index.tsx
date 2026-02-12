@@ -1,23 +1,20 @@
-import { View, Text, Pressable, Image, ImageBackground } from 'react-native';
+import { View, Text, Pressable, ImageBackground } from 'react-native';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { useEffect } from 'react';
 import { useRouter } from 'expo-router';
 import GoogleIcon from '@/assets/images/google-icon.svg';
 import api from '@/lib/api';
 import { useAuthStore } from '@/lib/store/auth';
-import { StatusBar } from 'expo-status-bar';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const WEB_CLIENT_ID = '365781114531-qmnedake99h2t6rt8i936o6dbdd3pr0s.apps.googleusercontent.com';
 
 export default function LoginScreen() {
   const router = useRouter();
-  const { login, logout } = useAuthStore();
+  const { login } = useAuthStore();
 
   useEffect(() => {
     GoogleSignin.configure({
-      webClientId: WEB_CLIENT_ID,
-      offlineAccess: true,
+      webClientId: process.env.EXPO_PUBLIC_WEB_CLIENT_ID,
+      offlineAccess: false,
     });
   }, []);
 
@@ -27,7 +24,7 @@ export default function LoginScreen() {
       await GoogleSignin.signOut();
       const userInfo = await GoogleSignin.signIn();
       const idToken = userInfo.data?.idToken;
-
+      
       const res = await api.post('/auth/google', {
         idToken: idToken,
       });

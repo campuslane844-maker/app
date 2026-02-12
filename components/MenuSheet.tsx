@@ -128,7 +128,7 @@ export function MenuSheet({ visible, onClose }: MenuSheetProps) {
                   label="Progress"
                   onPress={() => {
                     onClose();
-                    router.push('/(tabs)/explore');
+                    router.push('/(tabs)/profile/progress');
                   }}
                 />
               )}

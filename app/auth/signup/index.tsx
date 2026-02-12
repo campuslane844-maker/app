@@ -6,7 +6,6 @@ import api from '@/lib/api';
 import { useOnboardingStore } from '@/lib/store/onboarding';
 import { useAuthStore } from '@/lib/store/auth';
 import GoogleIcon from '@/assets/images/google-icon.svg';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const AWS_URL = process.env.EXPO_PUBLIC_AWS_URL;
 
@@ -21,16 +20,14 @@ export default function RoleScreen() {
   const referralCode = params.ref ?? null;
 
   const { role, setField } = useOnboardingStore();
-  const { login, logout, user, isAuthenticated } = useAuthStore();
+  const { login, user, isAuthenticated } = useAuthStore();
 
   /* Redirect if logged in */
   useEffect(() => {
     if (user && isAuthenticated) {
-      router.replace("/(tabs)/home")
+      router.replace('/(tabs)/home');
     }
   }, [user, isAuthenticated]);
-
-  
 
   /* Referral */
   useEffect(() => {
@@ -44,6 +41,13 @@ export default function RoleScreen() {
     if (urlRole) setField('role', urlRole);
   }, [urlRole]);
 
+  useEffect(() => {
+    GoogleSignin.configure({
+      webClientId: process.env.EXPO_PUBLIC_WEB_CLIENT_ID,
+      offlineAccess: true,
+    });
+  }, []);
+
   const handleGoogleLogin = async () => {
     try {
       await GoogleSignin.hasPlayServices();
@@ -52,7 +56,7 @@ export default function RoleScreen() {
       const idToken = userInfo.data?.idToken;
 
       if (!idToken) return;
-      setField("idToken", idToken);
+      setField('idToken', idToken);
 
       const res = await api.post('/auth/google', {
         idToken,
@@ -63,13 +67,13 @@ export default function RoleScreen() {
       if (res.data.success) {
         const { user, token } = res.data.data;
         login(user, token);
-        setField("idToken", idToken);
-        router.replace("/(tabs)/home")
-      } 
+        setField('idToken', idToken);
+        router.replace('/(tabs)/home');
+      }
     } catch (err) {
       console.log('Google Sign-In failed', err);
       router.push('/auth/signup/details');
-    } 
+    }
   };
 
   const rolesToRender: Array<'student' | 'teacher' | 'parent'> = urlRole
@@ -77,7 +81,10 @@ export default function RoleScreen() {
     : ['student', 'teacher', 'parent'];
 
   return (
-    <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ flexGrow: 1 }} className="px-4 py-24">
+    <ScrollView
+      showsVerticalScrollIndicator={false}
+      contentContainerStyle={{ flexGrow: 1 }}
+      className="px-4 py-24">
       <View className="items-center">
         {/* Logo */}
         <Image
@@ -90,14 +97,11 @@ export default function RoleScreen() {
 
         {/* Heading */}
         <View className="mb-12 items-center px-12">
-          <Text className="text-center font-heading2 text-2xl text-gray-800">
-            Select Your Role
-          </Text>
+          <Text className="text-center font-heading2 text-2xl text-gray-800">Select Your Role</Text>
           <Text className="mt-2 text-center font-sans text-base text-gray-500">
-              Choose whether you’re a student or parent to continue
+            Choose whether you’re a student or parent to continue
           </Text>
         </View>
-        
 
         {/* Role Cards */}
         <View className={`flex flex-row gap-2`}>
@@ -105,7 +109,7 @@ export default function RoleScreen() {
             <Pressable
               key={r}
               onPress={() => setField('role', r)}
-              className={`flex-col gap-4 items-center justify-evenly rounded-xl bg-white p-2 shadow md:flex-col ${
+              className={`flex-col items-center justify-evenly gap-4 rounded-xl bg-white p-2 shadow md:flex-col ${
                 role === r ? 'border border-primary' : 'border border-gray-300'
               }`}>
               <Image
@@ -113,7 +117,9 @@ export default function RoleScreen() {
                 className="h-20 w-20 md:h-28 md:w-28"
                 resizeMode="contain"
               />
-              <Text className="text-sm font-heading2 font-medium capitalize text-gray-600">{r}</Text>
+              <Text className="font-heading2 text-sm font-medium capitalize text-gray-600">
+                {r}
+              </Text>
             </Pressable>
           ))}
         </View>
@@ -124,7 +130,9 @@ export default function RoleScreen() {
             onPress={handleGoogleLogin}
             className="mt-12 flex-row items-center gap-6 rounded-full border border-gray-300 bg-white px-8 py-4 shadow">
             <GoogleIcon height={25} width={25} />
-            <Text className="text-md font-sans font-medium text-gray-900">Continue with Google</Text>
+            <Text className="text-md font-sans font-medium text-gray-900">
+              Continue with Google
+            </Text>
           </Pressable>
         )}
       </View>

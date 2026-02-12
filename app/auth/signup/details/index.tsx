@@ -10,7 +10,6 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
-import { Picker } from '@react-native-picker/picker';
 import { useRouter } from 'expo-router';
 
 import api from '@/lib/api';
@@ -59,6 +58,7 @@ export default function DetailsPage() {
     const fetchClasses = async () => {
       try {
         const res = await api.get('/classes');
+        console.log(res)
         setClasses(res.data.data);
       } catch {
         setErrorMessage('Unable to load classes');
@@ -264,6 +264,7 @@ export default function DetailsPage() {
                   borderRadius: 12,
                   paddingHorizontal: 10,
                 }}
+                placeholder='Pincode'
                 keyboardType="number-pad"
                 value={pincode}
                 onChangeText={(v) => {
@@ -278,6 +279,7 @@ export default function DetailsPage() {
                   borderRadius: 12,
                   paddingHorizontal: 10,
                 }}
+                placeholder='City'
                 value={city}
                 onChangeText={(v) => setField('city', v)}
                 className="input flex-1 font-sans"
@@ -291,6 +293,7 @@ export default function DetailsPage() {
                   borderRadius: 12,
                   paddingHorizontal: 10,
                 }}
+                placeholder='State'
                 value={state}
                 onChangeText={(v) => setField('state', v)}
                 className="input flex-1 font-sans"
@@ -301,6 +304,7 @@ export default function DetailsPage() {
                   borderRadius: 12,
                   paddingHorizontal: 10,
                 }}
+                placeholder='Country'
                 value={country}
                 onChangeText={(v) => setField('country', v)}
                 className="input flex-1 font-sans"

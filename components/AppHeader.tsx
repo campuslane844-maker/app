@@ -32,7 +32,7 @@ export function AppHeader({ showBack = false, onMenuPress }: AppHeaderProps) {
             source={{
               uri: `${process.env.EXPO_PUBLIC_AWS_URL}/logos/logos/FULL LOGO HORIZONTAL COLOR.png`,
             }}
-            className="h-8 w-32"
+            className="h-20 w-40"
             resizeMode="contain"
           />
         </View>

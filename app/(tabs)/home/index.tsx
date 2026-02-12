@@ -1,10 +1,17 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { View, Text, FlatList, Pressable, TextInput, ActivityIndicator } from 'react-native';
-import { useRouter } from 'expo-router';
+import {
+  View,
+  Text,
+  FlatList,
+  Pressable,
+  TextInput,
+  ActivityIndicator,
+  RefreshControl,
+} from 'react-native';
+import { Redirect, useRouter } from 'expo-router';
 import { Search, Filter, X } from 'lucide-react-native';
 import api from '@/lib/api';
 
-import ContentGrid from '@/components/ContentGrid';
 import FilterDrawer from '@/components/FilterDrawer';
 import { AppHeader } from '@/components/AppHeader';
 import { Content } from '@/types';
@@ -13,8 +20,8 @@ import ContentCard from '@/components/ContentCard';
 const LIMIT = 20;
 
 export default function Home() {
-  const router = useRouter();
-
+  const [refreshing, setRefreshing] = useState(false);
+  
   /* ================= STATE ================= */
   const [contents, setContents] = useState<Content[]>([]);
   const [page, setPage] = useState(1);
@@ -76,7 +83,7 @@ export default function Home() {
       setLoading(true);
 
       try {
-        const res = await api.get('/content/user', {
+        const res = await api.get('/content', {
           params: buildParams(pageNum),
           signal: controller.signal,
         });
@@ -98,6 +105,18 @@ export default function Home() {
     [buildParams]
   );
 
+  const onRefresh = useCallback(async () => {
+    try {
+      setRefreshing(true);
+      setHasMore(true);
+      setPage(1);
+
+      await fetchPage(1);
+    } finally {
+      setRefreshing(false);
+    }
+  }, [fetchPage]);
+
   /* ================= RESET & FETCH ================= */
   useEffect(() => {
     setPage(1);
@@ -116,39 +135,12 @@ export default function Home() {
   useEffect(() => {
     fetchPage(1);
   }, []);
+  
+  const clearSearch = useCallback(() => {
+  setSearch("");
+  setDebouncedQuery("");
+}, []);
 
-  /* ================= SEARCH HEADER ================= */
-  const renderHeader = useCallback(
-    () => (
-      <View className="border-b border-gray-200 bg-white px-4 pb-3 pt-4">
-        <View className="h-11 flex-row items-center gap-3 rounded-xl border border-gray-300 bg-gray-50 px-3">
-          <Search size={18} color="#6B7280" />
-
-          <TextInput
-            value={search}
-            onChangeText={setSearch}
-            placeholder="Search lessons"
-            placeholderTextColor="#9CA3AF"
-            className="flex-1 font-sans text-sm text-gray-900"
-            returnKeyType="search"
-          />
-
-          {search.length > 0 && (
-            <Pressable
-              onPress={() => {
-                setSearch('');
-                setDebouncedQuery('');
-              }}
-              hitSlop={10}
-              className="h-8 w-8 items-center justify-center rounded-full">
-              <X size={16} color="#6B7280" />
-            </Pressable>
-          )}
-        </View>
-      </View>
-    ),
-    [search]
-  );
 
   return (
     <>
@@ -158,7 +150,7 @@ export default function Home() {
       {/* Scrollable content */}
       <FlatList
         data={contents}
-        key={2} 
+        key={2}
         numColumns={2}
         keyExtractor={(item) => item._id}
         renderItem={({ item }) => (
@@ -166,15 +158,21 @@ export default function Home() {
             <ContentCard content={item} />
           </View>
         )}
-        ListHeaderComponent={renderHeader}
+        ListHeaderComponent={
+          <SearchHeader
+            search={search}
+            setSearch={setSearch}
+            clearSearch={clearSearch}
+          />
+        }
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
         stickyHeaderIndices={[0]}
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="on-drag"
-        columnWrapperStyle={{ gap: 12 }}
+        columnWrapperStyle={{ gap: 6 }}
         contentContainerStyle={{
-          paddingHorizontal: 0,
-          paddingBottom: 24,
-          
+          paddingHorizontal: 12,
+          paddingBottom: 20,
         }}
         onEndReached={loadMore}
         onEndReachedThreshold={0.6}
@@ -203,3 +201,31 @@ export default function Home() {
     </>
   );
 }
+
+const SearchHeader = React.memo(
+  ({ search, setSearch, clearSearch }: any) => {
+    return (
+      <View className="border-gray-200 bg-white pb-3 pt-4">
+        <View className="h-11 flex-row items-center gap-3 rounded-xl border border-gray-300 bg-gray-50 px-3">
+          <Search size={18} color="#6B7280" />
+
+          <TextInput
+            value={search}
+            onChangeText={setSearch}
+            placeholder="Search lessons"
+            placeholderTextColor="#9CA3AF"
+            className="flex-1 font-sans text-sm text-gray-900"
+            returnKeyType="search"
+          />
+
+          {search.length > 0 && (
+            <Pressable onPress={clearSearch} hitSlop={10}>
+              <X size={16} color="#6B7280" />
+            </Pressable>
+          )}
+        </View>
+      </View>
+    );
+  }
+);
+

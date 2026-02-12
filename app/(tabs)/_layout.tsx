@@ -43,7 +43,7 @@ export default function TabsLayout() {
 
       {/* Explore */}
       <Tabs.Screen
-        name="explore/index"
+        name="explore"
         options={{
           tabBarIcon: ({ color, size, focused }) => (
             <Ionicons
@@ -57,7 +57,7 @@ export default function TabsLayout() {
 
       {/* Shop */}
       <Tabs.Screen
-        name="shop/index"
+        name="shop"
         options={{
           tabBarIcon: ({ color, size, focused }) => (
             <Ionicons
@@ -71,7 +71,7 @@ export default function TabsLayout() {
 
       {/* Profile */}
       <Tabs.Screen
-        name="profile/index"
+        name="profile"
         options={{
           tabBarIcon: ({ color, size, focused }) => (
             <Ionicons

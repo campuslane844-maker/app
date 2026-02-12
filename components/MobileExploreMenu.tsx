@@ -3,6 +3,7 @@ import { View, Text, Pressable, StyleSheet, FlatList } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { ChevronRight, ArrowLeft } from "lucide-react-native";
 import api from "@/lib/api";
+import { useRouter } from "expo-router";
 
 type ClassItem = { _id: string; name: string };
 type SubjectItem = { _id: string; name: string };
@@ -98,6 +99,8 @@ export default function MobileExploreMenu({
     );
   }
 
+  const router = useRouter();
+
   /* ================= LEVEL 3: CHAPTERS ================= */
   return (
     <View style={styles.container}>
@@ -118,12 +121,11 @@ export default function MobileExploreMenu({
           key={ch._id}
           style={styles.chapterCard}
           onPress={() => {
-            navigation.navigate("ChapterContent", {
-              classId: activeClass._id,
-              subjectId: activeSubject?._id,
-              chapterId: ch._id,
-            });
+            router.push(
+              `/worksheet-zone/classes/${activeClass._id}/subjects/${activeSubject?._id}/chapters/${ch._id}`
+            )
             onClose();
+            console.log(`/worksheet-zone/classes/${activeClass._id}/subjects/${activeSubject?._id}/chapters/${ch._id}`)
           }}
         >
           <Text style={styles.rowText}>{ch.name}</Text>

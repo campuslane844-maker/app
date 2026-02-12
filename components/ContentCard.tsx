@@ -1,19 +1,24 @@
 import React from 'react';
 import { View, Text, Pressable, Image, StyleSheet } from 'react-native';
-import { Download, FileText, Lock } from 'lucide-react-native';
+import { FileText, Lock } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
-import * as Linking from 'expo-linking';
-
+import { Progress } from "@/types";
 import { useSubscriptionStore } from '@/lib/store/subscription';
 import { useAuthStore } from '@/lib/store/auth';
-import { Content, Progress } from '@/types';
 
+export type ContentCardItem = {
+  _id: string;
+  title: string;
+  type?: string;
+  paid?: boolean;
+  thumbnailKey?: string;
+  progress?: Progress;
+};
 
-export default function ContentCard({ content }: { content: Content }) {
+export default function ContentCard({ content }: { content: ContentCardItem }) {
   const router = useRouter();
   const { subscription } = useSubscriptionStore();
   const { user, isAuthenticated } = useAuthStore();
-  console.log(subscription);
   const isTeacher = user?.role === 'teacher';
 
   const isSubscriptionValid =
@@ -43,26 +48,14 @@ export default function ContentCard({ content }: { content: Content }) {
       return;
     }
 
-    // router.push({
-    //   pathname: "/explore/[id]",
-    //   params: { id: content._id, title: content.title },
-    // });
+    router.push({
+      pathname: "/(tabs)/home/content/[id]",
+      params: { id: content._id },
+    });
   };
-
-  const handleSubscribe = () => {
-    if (user?.role === 'student') {
-      // router.push("/subscribe/student");
-    } else if (user?.role === 'teacher') {
-      // router.push("/subscribe/teacher");
-    } else {
-      router.push('/auth');
-    }
-  };
-
-  
 
   return (
-    <Pressable className='mt-2' onPress={handleOpen} style={[styles.card, isLocked && styles.cardLocked]}>
+    <Pressable onPress={handleOpen} style={[styles.card, isLocked && styles.cardLocked]}>
       {/* LOCK OVERLAY */}
       {isLocked && (
         <View style={styles.lockOverlay}>
@@ -155,9 +148,9 @@ const styles = StyleSheet.create({
 
   statusBadge: {
     position: 'absolute',
-    top: -6,
+    top: -5,
     right: -6,
-    paddingHorizontal: 8,
+    paddingHorizontal: 12,
     paddingVertical: 4,
     borderRadius: 999,
     zIndex: 10,
