@@ -32,7 +32,7 @@ export function MenuSheet({ visible, onClose }: MenuSheetProps) {
   const insets = useSafeAreaInsets();
 
   const translateX = useRef(new Animated.Value(-MENU_WIDTH)).current;
-  const { user, logout } = useAuthStore();
+  const { user, logout, fetchMe } = useAuthStore();
   const userName = (user?.name || user?.email || '').toString();
 
   /* ---------------- Animation ---------------- */
@@ -44,6 +44,8 @@ export function MenuSheet({ visible, onClose }: MenuSheetProps) {
       stiffness: 180,
       mass: 0.7,
     }).start();
+
+    fetchMe();
   }, [visible]);
 
   /* ---------------- Swipe Gesture ---------------- */

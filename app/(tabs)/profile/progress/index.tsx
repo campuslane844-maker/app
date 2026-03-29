@@ -608,7 +608,7 @@ function RecentList({ items }: { items: any[] }) {
 
                 {/* Text */}
                 <View className="flex-1">
-                  <Text className="font-sans font-extrabold text-gray-900" numberOfLines={2}>
+                  <Text className="font-heading2 text-gray-900" numberOfLines={2}>
                     {r.title}
                   </Text>
 
@@ -634,12 +634,12 @@ function RecentList({ items }: { items: any[] }) {
 export default function ProgressKidsPage() {
   const params = useLocalSearchParams();
   const studentId = params?.id ? String(params.id) : null;
-
+  
   const [data, setData] = useState<ApiResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
+  
   const fetchData = useCallback(async () => {
     setError(null);
 

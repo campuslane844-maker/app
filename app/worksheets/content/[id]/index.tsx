@@ -492,7 +492,7 @@ export default function ContentScreen() {
                 player={player}
                 nativeControls
                 allowsFullscreen
-                allowsPictureInPicture
+                allowsPictureInPicture={false}
               />
             ) : content.type === 'quiz' && content.quizType === 'native' ? (
               <View style={styles.quizWrap}>

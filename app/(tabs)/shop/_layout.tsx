@@ -24,6 +24,14 @@ export default function ShopLayout() {
     >
       {/* Visible tabs */}
       <Tabs.Screen
+        name="index"
+        options={{
+          title: "Products",
+          tabBarIcon: ({ color }) => <ShoppingBasket size={18} color={color} />,
+        }}
+      />
+      
+      <Tabs.Screen
         name="orders/index"
         options={{
           title: "Orders",
@@ -66,13 +74,7 @@ export default function ShopLayout() {
         }}
       />
 
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: "Products",
-          tabBarIcon: ({ color }) => <ShoppingBasket size={18} color={color} />,
-        }}
-      />
+      
     </Tabs>
   );
 }

@@ -15,7 +15,7 @@ import api from '@/lib/api';
 import { useAuthStore } from '@/lib/store/auth';
 import { useSubscriptionStore } from '@/lib/store/subscription';
 import { AppHeader } from '@/components/AppHeader';
-const AWS_URL = process.env.EXPO_PUBLIC_AWS_URL || "";
+const AWS_URL = process.env.EXPO_PUBLIC_AWS_URL || '';
 
 import {
   ArrowRight,
@@ -226,9 +226,7 @@ function TopTabs({
                   isActive ? 'border-primary bg-primary' : 'border-gray-200 bg-white'
                 }`}>
                 <Text
-                  className={`font-heading2 text-sm ${
-                    isActive ? 'text-white' : 'text-gray-800'
-                  }`}>
+                  className={`font-heading2 text-sm ${isActive ? 'text-white' : 'text-gray-800'}`}>
                   {t.label}
                 </Text>
               </Pressable>
@@ -242,10 +240,10 @@ function TopTabs({
 
 /* ========================================================= */
 export default function ProfileScreen() {
-  const { user: authUser } = useAuthStore();
+  const { user: authUser, fetchMe } = useAuthStore();
   const userId = authUser?._id;
 
-  const { isSubscribed, subscription } = useSubscriptionStore();
+  const { isSubscribed, fetchSubscription } = useSubscriptionStore();
 
   const [profile, setProfile] = useState<UserProfile>(EMPTY_PROFILE);
   const [classes, setClasses] = useState<ClassItem[]>([]);
@@ -442,6 +440,11 @@ export default function ProfileScreen() {
   const onRefresh = useCallback(async () => {
     try {
       setRefreshing(true);
+      await fetchMe();
+      const role = useAuthStore.getState().user?.role;
+      if (role === 'student' || role === 'teacher') {
+        await fetchSubscription(role);
+      }
       await fetchAll();
     } finally {
       setRefreshing(false);
@@ -563,10 +566,10 @@ export default function ProfileScreen() {
   };
 
   const viewChildProgress = (kid: any) => {
-    const studentId = kid?._id;
-    
-    if (studentId) router.push(`/progress?id=${studentId}` as any);
-    else router.push(`/progress` as any);
+    const studentId = kid?.studentId._id;
+
+    if (studentId) router.push(`profile/progress?id=${studentId}` as any);
+    else router.push(`profile/progress` as any);
   };
 
   /* ---------------- UI computed ---------------- */
@@ -626,12 +629,7 @@ export default function ProfileScreen() {
           }}>
           <Card>
             <View className="flex-row items-start justify-between gap-3">
-              <View className="flex-1">
-                <Text className="font-heading2 text-lg text-gray-900">Profile</Text>
-                <Text className="mt-1 font-sans text-sm text-gray-500">
-                  Manage your personal information
-                </Text>
-              </View>
+              
 
               {!isEditing ? (
                 <Pressable
@@ -659,17 +657,7 @@ export default function ProfileScreen() {
               )}
             </View>
 
-            {role === 'student' && isSubscribed && (
-              <Pressable
-                onPress={() => router.push(`/subscribe/${role}/manage` as any)}
-                className="mt-4 flex-row items-center justify-between rounded-xl border border-gray-200 bg-white px-4 py-3">
-                <View className="flex-row items-center gap-2">
-                  <ExternalLink size={16} color="#0f172a" />
-                  <Text className="font-sans font-bold text-gray-900">Manage Subscription</Text>
-                </View>
-                <ArrowRight size={18} color="#0f172a" />
-              </Pressable>
-            )}
+            
 
             <View className="mt-5 gap-4">
               <Row
@@ -857,16 +845,16 @@ export default function ProfileScreen() {
                         style={({ pressed }) => [{ opacity: pressed ? 0.92 : 1 }]}>
                         <View className="flex-row gap-3">
                           {/* Thumbnail */}
-                          <View className="w-24 aspect-video overflow-hidden rounded border-gray-200 bg-gray-100">
+                          <View className="aspect-video w-24 overflow-hidden rounded border-gray-200 bg-gray-100">
                             {it.contentId.thumbnailKey ? (
                               <Image
                                 source={{ uri: `${AWS_URL}/${it.contentId.thumbnailKey}` }}
-                                className="h-full w-full aspect-video"
+                                className="aspect-video h-full w-full"
                                 resizeMode="contain"
                               />
                             ) : (
                               <View className="flex-1 items-center justify-center bg-primary/10">
-                                <Text className="font-sans font-extrabold text-primary">
+                                <Text className="font-heading2 text-primary">
                                   {(it.contentId.title || 'C').slice(0, 2).toUpperCase()}
                                 </Text>
                               </View>
@@ -875,15 +863,13 @@ export default function ProfileScreen() {
 
                           {/* Right */}
                           <View className="flex-1">
-                            <View className="flex-row items-start justify-between gap-2">
+                            <View className="flex-row items-center justify-between gap-2">
                               <View className="flex-1">
                                 <Text
-                                  className="font-sans text-sm font-extrabold text-gray-900"
+                                  className="font-heading2 text-sm text-gray-900"
                                   numberOfLines={2}>
                                   {it.contentId.title}
                                 </Text>
-
-                                
                               </View>
 
                               {/* Status */}
@@ -1012,9 +998,7 @@ export default function ProfileScreen() {
                 onLayout={(e) => {
                   sectionYRef.current['pending'] = e.nativeEvent.layout.y;
                 }}>
-                <Text className="mb-2 font-sans text-gray-900">
-                  Pending Requests
-                </Text>
+                <Text className="mb-2 font-sans text-gray-900">Pending Requests</Text>
 
                 {pendingLinks.length === 0 ? (
                   <Text className="font-sans text-sm text-gray-500">No pending link requests</Text>

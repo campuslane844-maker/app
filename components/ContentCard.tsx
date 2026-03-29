@@ -49,7 +49,7 @@ export default function ContentCard({ content }: { content: ContentCardItem }) {
     }
 
     router.push({
-      pathname: "/(tabs)/home/content/[id]",
+      pathname: "/worksheets/content/[id]",
       params: { id: content._id },
     });
   };

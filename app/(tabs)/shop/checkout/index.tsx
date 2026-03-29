@@ -433,15 +433,12 @@ export default function CheckoutScreen() {
 
       router.replace(`/(tabs)/shop/orders/${orderId}` as any);
     } catch (e: any) {
-      console.error("Razorpay error", e);
+      console.log("Razorpay error", e);
 
       // Razorpay cancel returns something like:
       // { description: 'Payment cancelled by user', code: 2 }
       const msg =
-        e?.description ||
-        e?.message ||
-        e?.response?.data?.message ||
-        "Payment failed";
+        "Payment cancelled";
 
       Alert.alert("Payment", msg);
     } finally {

@@ -9,9 +9,7 @@ import { useFonts } from 'expo-font';
 import { useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import "react-native-gesture-handler";
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuthStore } from '@/lib/store/auth';
-import { useOnboardingStore } from '@/lib/store/onboarding';
 
 export { ErrorBoundary } from 'expo-router';
 
@@ -26,11 +24,13 @@ export default function RootLayout() {
     'Quicksand-Bold': require('@/assets/fonts/Quicksand-Bold.ttf'),
     'DM Sans': require('@/assets/fonts/DmSans-Variable.ttf'),
   });
+  const {fetchMe} = useAuthStore();
 
-  useEffect(() => {
+   useEffect(() => {
     if (fontsLoaded) {
       SplashScreen.hideAsync();
     }
+    fetchMe();
   }, [fontsLoaded]);
 
   if (!fontsLoaded) return null;

@@ -24,7 +24,7 @@ export default function LoginScreen() {
       await GoogleSignin.signOut();
       const userInfo = await GoogleSignin.signIn();
       const idToken = userInfo.data?.idToken;
-      
+      console.log("ID TOKEN: ", idToken);
       const res = await api.post('/auth/google', {
         idToken: idToken,
       });

@@ -5,14 +5,23 @@ import { useAuthStore } from "@/lib/store/auth";
 import { useEffect } from "react";
 
 export default function TabsLayout() {
-  const { fetchSubscription } = useSubscriptionStore()
-  const { user } = useAuthStore();
-  useEffect(()=>{
-    const fetch = async () => { 
-      await fetchSubscription(user?.role as "student" | "teacher");
+  const { fetchSubscription } = useSubscriptionStore();
+  const { user, fetchMe } = useAuthStore();
+
+  // Fetch user once
+  useEffect(() => {
+    fetchMe();
+  }, []);
+
+  // Fetch subscription only when role exists
+  useEffect(() => {
+    if (!user?.role) return;
+
+    if (user.role === "student" || user.role === "teacher") {
+      fetchSubscription(user.role);
     }
-    fetch();
-  }, [user])
+  }, [user?.role]);
+  
   return (
     <Tabs
       screenOptions={{
@@ -29,7 +38,7 @@ export default function TabsLayout() {
     >
       {/* Home */}
       <Tabs.Screen
-        name="home"
+        name="home/index"
         options={{
           tabBarIcon: ({ color, size, focused }) => (
             <Ionicons
